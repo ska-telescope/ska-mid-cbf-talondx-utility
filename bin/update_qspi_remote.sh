@@ -252,6 +252,10 @@ look_up_official_hash()
     computed_hash_string=$1
 
     case $computed_hash_string in
+
+    "ee118626efa7ecc8754b26649417f969")
+        __official_version="0.5.0"
+        ;;
     "eae18ec2daf5749fdd3168b513e84e11")
         __official_version="0.2.6"
         ;;
