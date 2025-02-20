@@ -84,7 +84,11 @@ program_bitstream()
 
     bs_core=$(find "$temp_dir" -name "*.rbf")
     dtb=$(find "$temp_dir" -name "*.dtb")
-    json=$(find "$temp_dir" -name "*.json")
+    json=$(find "$temp_dir" -name "*.json" -not -path "$temp_dir/*/*/*")
+
+    echo "Using $bs_core"
+    echo "Using $dtb"
+    echo "Using $json"
 
     scp "$bs_core" "$dtb" "$json" root@"$BOARD":/lib/firmware
     ssh root@"$BOARD" -n "rmdir $path/*; mkdir $path/$name" # trigger removal of old device tree and setup the next image.
