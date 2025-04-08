@@ -242,50 +242,6 @@ check_error()
     fi  
 }
 
-# search the given hash in a look-up table and return the version string.
-look_up_official_hash()
-{
-    local computed_hash_string;
-    local official_version;
-    local __resultVar=$2; #variable is passed by "reference"
-
-    computed_hash_string=$1
-
-    case $computed_hash_string in
-
-    "ee118626efa7ecc8754b26649417f969")
-        __official_version="0.5.0"
-        ;;
-    "eae18ec2daf5749fdd3168b513e84e11")
-        __official_version="0.2.6"
-        ;;
-    "a9cd73a54842252e0832dc23fce6d32e")
-        __official_version="0.2.5"
-        ;;
-    "68c953ebcef1eed314bb67d0be3a9141")
-        __official_version="0.2.4"
-        ;;
-    "7cd5b078d061864d5f8a761bd6138f72")
-        __official_version="0.2.3"
-        ;;
-    "a015c874c4569caf09139d3e99341770")
-        __official_version="0.2.2"
-        ;;
-    *)
-        echo "Warning, the computed hash of .rpd file $computed_hash_string is not an official release"
-        echo "Remote update is supported starting from version 0.2.2"
-        __official_version="unofficial"
-        ;;
-    esac
-
-    if [ "$__official_version" != "unofficial" ]; then
-        echo "Using official version $__official_version with hash: $computed_hash_string"
-    fi
-
-    # set the passed variable to the look-up value
-    eval $__resultVar="'$__official_version'"
-}
-
 remote_log_db(){
     key=$1
     value=$2
@@ -298,15 +254,16 @@ remote_log_partition_version()
 
     local slot_number;
     local partition_file;
-    local off_vers; #variable to store the official version, passed by reference
 
     slot_number=$1
     partition_file=$2
 
     hash=$(md5sum "$partition_file" | cut -d" " -f1)
+    
+    version=$(echo $ARCHIVE | awk -F".tar.gz" '{print $1}')
+    remote_log_db "partition{$slot_number}_version" "$version"
 
-    look_up_official_hash "$hash" off_vers
-    remote_log_db "partition{$slot_number}_hash" "${hash}_version:${off_vers}"
+    remote_log_db "partition{$slot_number}_hash" "$hash"
 
     current_date=$(date --utc +%F_%T_UTC)
     remote_log_db "partition{$slot_number}_dateTime" "$current_date"
